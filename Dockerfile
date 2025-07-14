@@ -2,12 +2,14 @@
 FROM eclipse-temurin:21-jdk-jammy AS builder
 WORKDIR /app
 
-# Copy only what’s needed for dependency download
-COPY gradlew build.gradle.kts settings.gradle.kts ./
+COPY gradlew ./
+RUN chmod +x gradlew
+
+COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
+
 RUN ./gradlew build -x test --no-daemon || true
 
-# Copy the rest later
 COPY src ./src
 RUN ./gradlew build -x test --no-daemon
 
