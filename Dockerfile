@@ -1,26 +1,18 @@
-# Stage 1: Build the application's JAR file using JDK 21
-FROM eclipse-temurin:21-jdk-jammy as builder
+# Stage 1: Build JAR
+FROM eclipse-temurin:21-jdk-jammy AS builder
 WORKDIR /app
 
-# Copy Gradle wrapper and build files
-COPY gradlew build.gradle settings.gradle ./
+# Copy only what’s needed for dependency download
+COPY gradlew build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
+RUN ./gradlew build -x test --no-daemon || true
 
-# Download dependencies (makes rebuilds faster)
-RUN ./gradlew dependencies
-
-# Copy the source code
+# Copy the rest later
 COPY src ./src
+RUN ./gradlew build -x test --no-daemon
 
-# Build the app (skip tests for faster build)
-RUN ./gradlew build -x test
-
-# Stage 2: Create the final, smaller image to run the application with JRE 21
+# Stage 2: Run
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-
-# Copy the built JAR from the previous stage
 COPY --from=builder /app/build/libs/*.jar app.jar
-
-# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
