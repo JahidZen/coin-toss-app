@@ -1,22 +1,14 @@
 package com.khantech.toss_game
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 
-@Entity
-@Table(name = "Players")
+@Table("Players") // Use @Table from Spring Data, not JPA
 data class Player(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    @Id // Use @Id from Spring Data
+    val id: Long? = null, // Make id nullable for new, unsaved players
 
-    @Column(unique = true)
     val playerName: String,
 
     var totalScore: Int = 0
 )
-
